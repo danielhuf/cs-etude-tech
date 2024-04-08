@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Air Price Benchmark</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo-title-container">
+            <img src="img/amadeus-logo.png" alt="Amadeus Logo" class="company-logo">
+            <h1>Air Price Benchmark</h1>
+        </div>
+    </header>
+    <div id="data-container">
+    </div>
+    <div id="filter-box">
+        <h2>Inputs</h2>
+        <form id="filter-form">
+            <div class="form-column first-column">
+                <label for="origin-city">Origin City:</label>
+                <select id="origin-city">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                </select>
+    
+                <label for="nb-connections">NB Connections:</label>
+                <div id="nb-connections-slider"></div>
+    
+                <label for="is-one-adt">Adult:</label>
+                <select id="is-one-adt">
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                </select>
+            </div>
+    
+            <div class="form-column second-column">
+                <label for="destination-city">Destination City:</label>
+                <select id="destination-city">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                </select>
+    
+                <label for="trip-type">One way / Round trip:</label>
+                <select id="trip-type">
+                    <option value="One way">One way</option>
+                    <option value="Round trip">Round trip</option>
+                </select>
+    
+                <label for="cabin">Cabin:</label>
+                <select id="cabin">
+                    <option value="Economy">Economy</option>
+                    <option value="Premium Economy">Premium Economy</option>
+                    <option value="Business">Business</option>
+                    <option value="First class">First class</option>
+                </select>
+            </div>
+
+            <div class="form-column third-column">
+                <label for="departure-date">Departure Date:</label>
+                <input type="date" id="departure-date" name="departure-date" max="" value="">
+
+                <label>Stay Duration:</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" class="stay-duration all" checked> (All)</label>
+                    <label><input type="checkbox" class="stay-duration" checked> No Stay</label>
+                    <label><input type="checkbox" class="stay-duration" checked> 0</label>
+                    <label><input type="checkbox" class="stay-duration" checked> 1</label>
+                    <label><input type="checkbox" class="stay-duration" checked> 2</label>
+                    <label><input type="checkbox" class="stay-duration" checked> 3</label>
+                    <label><input type="checkbox" class="stay-duration" checked> 4</label>
+                    <label><input type="checkbox" class="stay-duration" checked> 5</label>
+                </div>
+            </div>
+        </form>
+    </div>    
+    <script src="script.js"></script>
+</body>
+</html>
