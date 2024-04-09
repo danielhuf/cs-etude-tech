@@ -21,11 +21,8 @@
         <form id="filter-form">
             <div class="form-column first-column">
                 <label for="origin-city">Origin City:</label>
-                <select id="origin-city">
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                </select>
+                <input list="origin-options" id="origin-city" name="origin-city" value="PAR">
+                <datalist id="origin-options"></datalist>
     
                 <label for="nb-connections">NB Connections:</label>
                 <div id="nb-connections-slider"></div>
@@ -39,11 +36,8 @@
     
             <div class="form-column second-column">
                 <label for="destination-city">Destination City:</label>
-                <select id="destination-city">
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                </select>
+                <input list="destination-options" id="destination-city" name="destination-city" value="LIS">
+                <datalist id="destination-options"></datalist>
     
                 <label for="trip-type">One way / Round trip:</label>
                 <select id="trip-type">
@@ -75,6 +69,9 @@
                     <label><input type="checkbox" class="stay-duration" checked> 4</label>
                     <label><input type="checkbox" class="stay-duration" checked> 5</label>
                 </div>
+            </div>
+            <div class="form-action">
+                <button type="button" id="search-flights">Search</button>
             </div>
         </form>
     </div>    
