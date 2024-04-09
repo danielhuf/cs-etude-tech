@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import psycopg2
 from psycopg2 import OperationalError
@@ -29,22 +29,32 @@ def create_connection():
 
 @app.route('/api/flights', methods=['GET'])
 def get_flights():
+    origin = request.args.get('origin', '')
+    destination = request.args.get('destination', '')
+    trip_type = request.args.get('trip_type', '')
+    ond = f"{origin}-{destination}"
+    nb_connections_min = request.args.get('nb_connections_min', type=int)
+    nb_connections_max = request.args.get('nb_connections_max', type=int)
+
     sql_query = """
                 SELECT
                     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price_eur) AS median_price,
-                    advance_purchase AS adv_purchase, 
+                    advance_purchase AS adv_purchase,
                     main_airline,
                     ond
                 FROM (
                     SELECT
                         MIN(price_eur) AS price_eur,
                         main_airline,
-                        advance_purchase, ond
+                        advance_purchase,
+                        ond
                     FROM
                         flight_recos
                     WHERE
-                        trip_type = 'RT'
-                        AND ond = 'PAR-LIS'
+                        trip_type = %s AND
+                        ond = %s AND
+                        number_of_flights > %s AND
+                        number_of_flights <= %s + 1
                     GROUP BY
                         search_id,
                         main_airline,
@@ -56,10 +66,45 @@ def get_flights():
                 ORDER BY advance_purchase DESC;
                 """
     connection = create_connection()
+    if connection:
+        try:
+            cursor = connection.cursor()
+            cursor.execute(sql_query, (trip_type, ond, nb_connections_min, nb_connections_max))
+            result = cursor.fetchall()
+            columns = [desc[0] for desc in cursor.description]
+            data = [dict(zip(columns, row)) for row in result]
+            return jsonify(data)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return jsonify({"error": "Failed to fetch data"}), 500
+        finally:
+            cursor.close()
+            connection.close()
+    else:
+        return jsonify({"error": "Connection to database failed"}), 500
+
+@app.route('/api/cities', methods=['GET'])
+def get_cities():
+    query = "SELECT DISTINCT OND FROM flight_recos"
+    connection = create_connection()
     if connection is not None:
-        df = pd.read_sql_query(sql_query, con=connection)
-        connection.close()
-        return jsonify(df.to_dict(orient='records')) 
+        try:
+            cursor = connection.cursor()
+            cursor.execute(query)
+            records = cursor.fetchall()
+            origins = set()
+            destinations = set()
+            for record in records:
+                origin, destination = record[0].split('-')
+                origins.add(origin)
+                destinations.add(destination)
+            return jsonify({"origins": sorted(origins), "destinations": sorted(destinations)})
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return jsonify({"error": "Failed to fetch data"}), 500
+        finally:
+            cursor.close()
+            connection.close()
     else:
         return jsonify({"error": "Connection to database failed"}), 500
 

@@ -51,11 +51,18 @@ h1 {
 
 #filter-form {
     display: flex;
-    width: 100%;
+    flex-wrap: wrap; 
+    align-items: flex-start; 
+    justify-content: space-between; 
+}
+
+#search-flights:hover {
+    background-color: #105ca9;
 }
 
 .form-column {
-    flex: 1; 
+    flex: 1 1 30%;
+    margin-right: 10px;
 }
 
 .first-column,
@@ -70,6 +77,25 @@ h1 {
     margin: 0;
 }
 
+.form-action {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+#search-flights {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #206cbc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    outline: none;
+    width: 200px;
+}
+
 .form-column label {
     display: block;
     margin-bottom: 10px;
@@ -79,7 +105,6 @@ h1 {
 #nb-connections-slider {
     width: 70%; 
     position: relative; 
-    cursor: pointer;
 }
 
 #nb-connections-slider::before,
@@ -89,16 +114,6 @@ h1 {
     top: 25px; 
     color: #000; 
     font-size: 14px; 
-}
-
-#nb-connections-slider::before {
-    content: '0';
-    left: 0;
-}
-
-#nb-connections-slider::after {
-    content: '4';
-    right: 0;
 }
 
 .form-column select {
@@ -116,4 +131,34 @@ h1 {
 
 .checkbox-group input[type="checkbox"] {
     margin-right: 5px; 
+}
+
+.noUi-pips .noUi-value {
+    font-size: 12px;
+    color: #333;
+}
+
+.noUi-pips .noUi-marker.noUi-marker-horizontal.noUi-marker-large {
+    background: #CCC;
+    height: 10px;
+    width: 2px;
+    top: -5px;
+}
+
+.noUi-target .noUi-connect {
+    background-color: #206cbc; 
+}
+
+.noUi-target .noUi-handle {
+    background-color: #fff;
+    outline: none;
+    cursor: pointer;
+}
+
+.noUi-target .noUi-handle:hover {
+    background-color: #f4f4f4;
+}
+
+.noUi-target .noUi-handle:focus {
+    box-shadow: 0 0 1px #333 inset;
 }
