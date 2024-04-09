@@ -8,6 +8,11 @@
     <script src="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 </head>
 <body>
     <header>
@@ -17,6 +22,10 @@
         </div>
     </header>
     <div id="data-container">
+        <figure class="highcharts-figure">
+            <div id="container"></div>
+        </figure>
+        <div id="loading" class="spinner"></div>
     </div>
     <div id="filter-box">
         <h2>Inputs</h2>
@@ -41,10 +50,10 @@
                 <input list="destination-options" id="destination-city" name="destination-city" value="LIS">
                 <datalist id="destination-options"></datalist>
     
-                <label for="trip-type">One way / Round trip:</label>
+                <label for="trip-type">Round trip / One way:</label>
                 <select id="trip-type">
-                    <option value="One way">One way</option>
                     <option value="Round trip">Round trip</option>
+                    <option value="One way">One way</option>
                 </select>
     
                 <label for="cabin">Cabin:</label>

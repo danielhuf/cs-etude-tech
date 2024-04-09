@@ -2,17 +2,20 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import psycopg2
 from psycopg2 import OperationalError
-import pandas as pd
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
 CORS(app)
 
 def create_connection():
-    db_name = "postgres"
-    db_user = "postgres"
-    db_password = "banana123"
-    db_host = "flightdb.cf4gue2iunia.eu-north-1.rds.amazonaws.com"
-    db_port = "5432"
+    load_dotenv()
+
+    db_name = os.getenv('DB_NAME')
+    db_user = os.getenv('DB_USER')
+    db_password = os.getenv('DB_PASSWORD')
+    db_host = os.getenv('DB_HOST')
+    db_port = os.getenv('DB_PORT')
     connection = None
     try:
         connection = psycopg2.connect(
