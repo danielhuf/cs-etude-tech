@@ -192,7 +192,7 @@ function fetchFlights() {
         })
         .catch(error => {
             console.error('Error fetching flights:', error);
-            document.getElementById('container').innerHTML = '<p>Error loading data. Please try again later.</p>';
+            document.getElementById('container').innerHTML = '<p> style="text-align: center;Error loading data. Please try again later.</p>';
             document.getElementById('loading').style.display = 'none';
         });
 }
