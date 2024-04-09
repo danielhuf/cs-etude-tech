@@ -137,6 +137,8 @@ function setupDefaults() {
 }
 
 function fetchFlights() {
+    document.getElementById('loading').style.display = 'block';
+
     const originCity = document.getElementById('origin-city').value;
     const destinationCity = document.getElementById('destination-city').value;
     let tripType = document.getElementById('trip-type').value;
@@ -181,10 +183,17 @@ function fetchFlights() {
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            updateDataContainer(data);
+            if (data && data.length > 0) {
+                updateDataContainer(data, tripType);
+            } else {
+                document.getElementById('container').innerHTML = '<p style="text-align: center;">No data available for the selected filters</p>';
+            }
+            document.getElementById('loading').style.display = 'none';
         })
         .catch(error => {
             console.error('Error fetching flights:', error);
+            document.getElementById('container').innerHTML = '<p>Error loading data. Please try again later.</p>';
+            document.getElementById('loading').style.display = 'none';
         });
 }
 
@@ -194,12 +203,92 @@ function formatDateToISO(date) {
         .split("T")[0];
 }
 
-function updateDataContainer(flights) {
-    const container = document.getElementById('data-container');
-    container.innerHTML = ''; 
-    flights.forEach(flight => {
-        const div = document.createElement('div');
-        div.innerHTML = `Median price: ${flight.median_price}, Advance purchase: ${flight.adv_purchase}, Main airline: ${flight.main_airline}, Ond: ${flight.ond}`;
-        container.appendChild(div);
+function updateDataContainer(flightsData, trip_type) {
+
+    const ond = flightsData[0].ond;
+    let tripType;
+
+    if (trip_type === 'RT') {
+        tripType = 'round trips';
+    } else {
+        tripType = 'one way';
+    }
+
+    const seriesData = flightsData.reduce((acc, flight) => {
+        if (!acc[flight.main_airline]) {
+            acc[flight.main_airline] = [];
+        }
+        acc[flight.main_airline].push({
+            x: flight.adv_purchase,
+            y: flight.median_price
+        });
+        return acc;
+    }, {});
+
+    const chartSeries = Object.keys(seriesData).map(airline => {
+        return {
+            name: airline,
+            data: seriesData[airline].sort((a, b) => a.x - b.x) 
+        };
+    });
+
+    
+    Highcharts.chart('container', {
+        chart: {
+            type: 'spline'
+        },
+        title: {
+            text: ond + ' ' + tripType
+        },
+        yAxis: {
+            title: {
+                text: 'Price (EUR)'
+            }
+        },
+        xAxis: {
+            title: {
+                text: 'Advance Purchase (days)'
+            },
+            allowDecimals: false,
+            reversed: true
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.series.name + '</b><br/><b>' + this.y.toFixed(2) + ' €</b>';
+            }
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle'
+        },
+        plotOptions: {
+            series: {
+                label: {
+                    connectorAllowed: false
+                },
+                pointStart: 1
+            },
+            spline: { 
+                marker: {
+                    enabled: true
+                }
+            }
+        },
+        series: chartSeries,
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
+                }
+            }]
+        }
     });
 }
