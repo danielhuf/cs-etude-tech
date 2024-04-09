@@ -61,19 +61,21 @@ h1 {
 }
 
 .form-column {
-    flex: 1 1 30%;
+    flex: 1 1 1 30%;
     margin-right: 10px;
 }
 
 .first-column,
 .second-column,
-.third-column {
+.third-column,
+.fourth-column {
     padding-right: 10px; 
 }
 
 .first-column:first-child,
 .second-column:last-child,
-.third-column:last-child {
+.third-column:last-child,
+.fourth-column:last-child {
     margin: 0;
 }
 
@@ -103,7 +105,7 @@ h1 {
 }
 
 #nb-connections-slider {
-    width: 70%; 
+    width: 100%; 
     position: relative; 
 }
 
@@ -123,6 +125,11 @@ h1 {
 
 .form-column input[type="date"] {
     width: 30%;  
+}
+
+#search-date, #departure-date {
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
 .checkbox-group label {

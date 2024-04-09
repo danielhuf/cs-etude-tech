@@ -35,6 +35,15 @@ def get_flights():
     ond = f"{origin}-{destination}"
     nb_connections_min = request.args.get('nb_connections_min', type=int)
     nb_connections_max = request.args.get('nb_connections_max', type=int)
+    search_date_start = request.args.get('search_date_start', '')
+    search_date_end = request.args.get('search_date_end', '')
+    departure_date_start = request.args.get('departure_date_start', '')
+    departure_date_end = request.args.get('departure_date_end', '')
+    is_one_adult = request.args.get('is_one_adult', '')
+    cabin = request.args.get('cabin', '')
+
+    # Note: the end dates are exclusive
+    # For example, if time < 2021-01-01, it means time is less than 2021-01-01 00:00:00
 
     sql_query = """
                 SELECT
@@ -69,7 +78,10 @@ def get_flights():
     if connection:
         try:
             cursor = connection.cursor()
-            cursor.execute(sql_query, (trip_type, ond, nb_connections_min, nb_connections_max))
+            cursor.execute(sql_query, (trip_type, 
+                                       ond, 
+                                       nb_connections_min, 
+                                       nb_connections_max))
             result = cursor.fetchall()
             columns = [desc[0] for desc in cursor.description]
             data = [dict(zip(columns, row)) for row in result]

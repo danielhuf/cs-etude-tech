@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.css">
     <script src="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body>
     <header>
@@ -20,11 +22,11 @@
         <h2>Inputs</h2>
         <form id="filter-form">
             <div class="form-column first-column">
-                <label for="origin-city">Origin City:</label>
+                <label for="origin-city">Origin city:</label>
                 <input list="origin-options" id="origin-city" name="origin-city" value="PAR">
                 <datalist id="origin-options"></datalist>
     
-                <label for="nb-connections">NB Connections:</label>
+                <label for="nb-connections">NB connections:</label>
                 <div id="nb-connections-slider"></div>
     
                 <label for="is-one-adt">Adult:</label>
@@ -35,7 +37,7 @@
             </div>
     
             <div class="form-column second-column">
-                <label for="destination-city">Destination City:</label>
+                <label for="destination-city">Destination city:</label>
                 <input list="destination-options" id="destination-city" name="destination-city" value="LIS">
                 <datalist id="destination-options"></datalist>
     
@@ -48,17 +50,21 @@
                 <label for="cabin">Cabin:</label>
                 <select id="cabin">
                     <option value="Economy">Economy</option>
-                    <option value="Premium Economy">Premium Economy</option>
+                    <option value="Premium Economy">Premium economy</option>
                     <option value="Business">Business</option>
                     <option value="First class">First class</option>
                 </select>
             </div>
 
             <div class="form-column third-column">
-                <label for="departure-date">Departure Date:</label>
-                <input type="date" id="departure-date" name="departure-date" max="" value="">
-
-                <label>Stay Duration:</label>
+                <label for="search-date">Search date:</label>
+                <input type="text" id="search-date" name="search-date" placeholder="Select Date Range">
+            
+                <label for="departure-date">Departure date:</label>
+                <input type="text" id="departure-date" name="departure-date" placeholder="Select Date Range">
+            </div>
+            <div class="form-column fourth-column">
+                <label>Stay duration:</label>
                 <div class="checkbox-group">
                     <label><input type="checkbox" class="stay-duration all" checked> (All)</label>
                     <label><input type="checkbox" class="stay-duration" checked> No Stay</label>

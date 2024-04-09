@@ -1,7 +1,10 @@
+let searchDateRange;
+let departureDateRange;
+
 document.addEventListener('DOMContentLoaded', function() {
     setupCheckbox();
     setupSlider([0, 5], 0, 5);
-    setupDates();
+    setupDatePickers();
     setupEventListeners();
     fetchCities().then(() => {
         setupDefaults();
@@ -68,11 +71,34 @@ function setupSlider(startValues, min, max) {
     });
 }
 
-function setupDates() {
-    var departureDateInput = document.getElementById('departure-date');
-    var today = new Date().toISOString().split('T')[0];
-    departureDateInput.setAttribute('max', today); 
-    departureDateInput.value = today; 
+function setupDatePickers() {
+    const twoYearsAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 2));
+    const today = new Date();
+
+    searchDateRange = { start: twoYearsAgo, end: today };
+    departureDateRange = { start: twoYearsAgo, end: today };
+
+    searchDateRange.fpInstance = flatpickr("#search-date", {
+        mode: "range",
+        dateFormat: "Y-m-d",
+        maxDate: today,
+        defaultDate: [twoYearsAgo, today],
+        onChange: function(selectedDates, dateStr, instance) {
+            searchDateRange.start = selectedDates[0];
+            searchDateRange.end = selectedDates[1];
+        }
+    });
+
+    departureDateRange.fpInstance = flatpickr("#departure-date", {
+        mode: "range",
+        dateFormat: "Y-m-d",
+        maxDate: today,
+        defaultDate: [twoYearsAgo, today],
+        onChange: function(selectedDates, dateStr, instance) {
+            departureDateRange.start = selectedDates[0];
+            departureDateRange.end = selectedDates[1];
+        }
+    });
 }
 
 function setupEventListeners() {
@@ -105,8 +131,8 @@ function setupDefaults() {
     const originInput = document.getElementById('origin-city');
     const destinationInput = document.getElementById('destination-city');
     if (originInput && destinationInput) {
-        originInput.value = 'PAR'; // Default origin
-        destinationInput.value = 'LIS'; // Default destination
+        originInput.value = 'PAR'; 
+        destinationInput.value = 'LIS';
     }
 }
 
@@ -120,12 +146,37 @@ function fetchFlights() {
     const nbConnectionsMin = nbConnectionsSlider.dataset.min;
     const nbConnectionsMax = nbConnectionsSlider.dataset.max;
 
+    const isOneAdult = document.getElementById('is-one-adt').value;
+    const cabin = document.getElementById('cabin').value;
+
     const url = new URL('http://localhost:5000/api/flights');
     url.searchParams.append('origin', originCity);
     url.searchParams.append('destination', destinationCity);
     url.searchParams.append('trip_type', tripType);
     url.searchParams.append('nb_connections_min', nbConnectionsMin);
     url.searchParams.append('nb_connections_max', nbConnectionsMax);
+    url.searchParams.append('is_one_adult', isOneAdult);
+    url.searchParams.append('cabin', cabin);
+
+    if (searchDateRange.start && searchDateRange.end) {
+        url.searchParams.append('search_date_start', formatDateToISO(searchDateRange.start));
+        url.searchParams.append('search_date_end', formatDateToISO(searchDateRange.end));
+    } else {
+        const twoYearsAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 2));
+        const today = new Date();
+        url.searchParams.append('search_date_start', twoYearsAgo.toISOString().split('T')[0]);
+        url.searchParams.append('search_date_end', today.toISOString().split('T')[0]);
+    }
+
+    if (departureDateRange.start && departureDateRange.end) {
+        url.searchParams.append('departure_date_start', formatDateToISO(departureDateRange.start));
+        url.searchParams.append('departure_date_end', formatDateToISO(departureDateRange.end));
+    } else {
+        const twoYearsAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 2));
+        const today = new Date();
+        url.searchParams.append('departure_date_start', twoYearsAgo.toISOString().split('T')[0]);
+        url.searchParams.append('departure_date_end', today.toISOString().split('T')[0]);
+    }
 
     fetch(url)
         .then(response => response.json())
@@ -135,6 +186,12 @@ function fetchFlights() {
         .catch(error => {
             console.error('Error fetching flights:', error);
         });
+}
+
+function formatDateToISO(date) {
+    return new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
+        .toISOString()
+        .split("T")[0];
 }
 
 function updateDataContainer(flights) {
