@@ -6,8 +6,8 @@ click==8.1.7
 cognitojwt==1.4.1
 cryptography==42.0.5
 ecdsa==0.19.0
-Flask==3.0.3
-Flask-Cognito==1.20
-Flask-Cors==4.0.0
+flask==3.0.3
+flask-Cognito==1.20
+flask-Cors==4.0.0
 psycopg2-binary==2.9.9
 python-dotenv==1.0.0
