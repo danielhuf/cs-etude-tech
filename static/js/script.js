@@ -1,15 +1,25 @@
 let searchDateRange;
 let departureDateRange;
 
+var OnDPairs = [];
+
 document.addEventListener('DOMContentLoaded', function() {
     setupCheckbox();
     setupSlider([0, 5], 0, 5);
     setupDatePickers();
     setupEventListeners();
-    fetchCities().then(() => {
+    fetchOnDPairs().then(() => {
         setupDefaults();
         fetchFlights(); 
     });
+});
+
+document.getElementById('origin-city').addEventListener('change', function() {
+    updateDestinationsFromOrigin(this.value);
+});
+
+document.getElementById('destination-city').addEventListener('change', function() {
+    updateOriginsFromDestination(this.value);
 });
 
 function setupCheckbox() {
@@ -107,19 +117,63 @@ function setupEventListeners() {
     });
 }
 
-async function fetchCities() {
+function getOriginsFromOnDPairs(OnDPairs) {
+    return OnDPairs.map(pair => pair[0]).filter((value, index, self) => self.indexOf(value) === index);
+}
+
+function getDestinationsFromOnDPairs(OnDPairs) {
+    return OnDPairs.map(pair => pair[1]).filter((value, index, self) => self.indexOf(value) === index);
+}
+
+async function fetchOnDPairs() {
     try {
-        const response = await fetch('http://localhost:5000/api/cities');
+        const response = await fetch('http://localhost:5000/api/ond-pairs');
         const data = await response.json();
-        populateDatalist('origin-options', data.origins);
-        populateDatalist('destination-options', data.destinations);
+        OnDPairs = data['OnDPairs'];
+        populateDatalist('origin-options', getOriginsFromOnDPairs(OnDPairs));
+        populateDatalist('destination-options', getDestinationsFromOnDPairs(OnDPairs));
     } catch (error) {
         console.error('Error fetching city data:', error);
     }
 }
 
+function updateDestinationsFromOrigin(origin) {
+    if (origin === '') {
+        populateDatalist('destination-options', getOriginsFromOnDPairs(OnDPairs));
+    } else {
+        const destinations = OnDPairs.filter(pair => pair[0] === origin).map(pair => pair[1]);
+        populateDatalist('destination-options', destinations);
+    }
+}
+
+function updateOriginsFromDestination(destination) {
+    if (destination === '') {
+        populateDatalist('origin-options', getDestinationsFromOnDPairs(OnDPairs));
+    } else {
+        const origins = OnDPairs.filter(pair => pair[1] === destination).map(pair => pair[0]);
+        populateDatalist('origin-options', origins);
+    }
+    
+}
+
+
+
+// async function fetchCities() {
+//     try {
+//         const response = await fetch('http://localhost:5000/api/cities');
+//         const data = await response.json();
+//         populateDatalist('origin-options', data.origins);
+//         populateDatalist('destination-options', data.destinations);
+//     } catch (error) {
+//         console.error('Error fetching city data:', error);
+//     }
+// }
+
 function populateDatalist(datalistId, options) {
     const datalist = document.getElementById(datalistId);
+    while (datalist.firstChild) {
+        datalist.removeChild(datalist.firstChild);
+    }
     options.forEach(option => {
         const optionElement = document.createElement('option');
         optionElement.value = option;
