@@ -195,3 +195,47 @@ h1 {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+.button {
+    text-decoration: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #206cbc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    outline: none;
+    width: 200px;
+}
+
+.button-small {
+    text-decoration: none;
+    padding: 5px 10px;
+    font-size: 14px;
+    background-color: #206cbc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    outline: none;
+}
+
+.button:hover, .button-small:hover {
+    background-color: #105ca9;
+}
+
+.container-center {
+    margin-top: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.space-between {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
