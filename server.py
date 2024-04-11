@@ -138,18 +138,25 @@ def create_connection():
 
 @app.route('/api/flights', methods=['GET'])
 def get_flights():
+    dic_cabin = {
+        'Economy': 'M',
+        'Premium economy': 'W',
+        'Business': 'C',
+        'First class': 'F'
+    }
+
     origin = request.args.get('origin', '')
     destination = request.args.get('destination', '')
     trip_type = request.args.get('trip_type', '')
     ond = f"{origin}-{destination}"
     nb_connections_min = request.args.get('nb_connections_min', type=int)
     nb_connections_max = request.args.get('nb_connections_max', type=int)
+    cabin = dic_cabin[request.args.get('cabin', '')]
     search_date_start = request.args.get('search_date_start', '')
     search_date_end = request.args.get('search_date_end', '')
     departure_date_start = request.args.get('departure_date_start', '')
     departure_date_end = request.args.get('departure_date_end', '')
     is_one_adult = request.args.get('is_one_adult', '')
-    cabin = request.args.get('cabin', '')
 
     # Note: the end dates are exclusive
     # For example, if time < 2021-01-01, it means time is less than 2021-01-01 00:00:00
@@ -172,7 +179,8 @@ def get_flights():
                         trip_type = %s AND
                         ond = %s AND
                         number_of_flights > %s AND
-                        number_of_flights <= %s + 1
+                        number_of_flights <= %s + 1 AND
+                        cabin = %s
                     GROUP BY
                         search_id,
                         main_airline,
@@ -190,7 +198,8 @@ def get_flights():
             cursor.execute(sql_query, (trip_type, 
                                        ond, 
                                        nb_connections_min, 
-                                       nb_connections_max))
+                                       nb_connections_max,
+                                       cabin))
             result = cursor.fetchall()
             columns = [desc[0] for desc in cursor.description]
             data = [dict(zip(columns, row)) for row in result]
