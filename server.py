@@ -1,8 +1,8 @@
+import os
 from flask import Flask, jsonify, request, redirect, render_template, url_for, session
 from flask_cors import CORS
 import psycopg2
 from psycopg2 import OperationalError
-import pandas as pd
 from flask_dynamo import Dynamo
 
 from flask_cognito_lib import CognitoAuth
@@ -13,10 +13,9 @@ from flask_cognito_lib.decorators import (
     cognito_logout,
 )
 from dotenv import load_dotenv
-import os
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
 CORS(app)
 app.config['AWS_REGION'] = os.environ.get('AWS_REGION')
 app.config['AWS_COGNITO_DOMAIN'] = os.environ.get('AWS_COGNITO_DOMAIN')
@@ -87,11 +86,14 @@ def claims():
     return jsonify(session)
 
 
-@app.route('/ond-pairs')
+@app.route('/api/ond-pairs')
 @auth_required()
 def get_ond_pairs():
-    response = dynamo.tables['AirlineOnDPairs'].scan()
-    items = response['Items']
+    response = dynamo.tables['AirlineOnDPairs'].get_item(
+        Key={
+            'username': session['user_info']['cognito:username'].upper()
+        })
+    items = response.get('Item', {})
     return jsonify(items)
 
 @app.route("/logout")
@@ -115,11 +117,13 @@ def index():
     return render_template("index.html")
 
 def create_connection():
-    db_name = "postgres"
-    db_user = "postgres"
-    db_password = "banana123"
-    db_host = "flightdb.cf4gue2iunia.eu-north-1.rds.amazonaws.com"
-    db_port = "5432"
+    load_dotenv()
+
+    db_name = os.getenv('DB_NAME')
+    db_user = os.getenv('DB_USER')
+    db_password = os.getenv('DB_PASSWORD')
+    db_host = os.getenv('DB_HOST')
+    db_port = os.getenv('DB_PORT')
     connection = None
     try:
         connection = psycopg2.connect(
@@ -142,6 +146,15 @@ def get_flights():
     ond = f"{origin}-{destination}"
     nb_connections_min = request.args.get('nb_connections_min', type=int)
     nb_connections_max = request.args.get('nb_connections_max', type=int)
+    search_date_start = request.args.get('search_date_start', '')
+    search_date_end = request.args.get('search_date_end', '')
+    departure_date_start = request.args.get('departure_date_start', '')
+    departure_date_end = request.args.get('departure_date_end', '')
+    is_one_adult = request.args.get('is_one_adult', '')
+    cabin = request.args.get('cabin', '')
+
+    # Note: the end dates are exclusive
+    # For example, if time < 2021-01-01, it means time is less than 2021-01-01 00:00:00
 
     sql_query = """
                 SELECT
@@ -176,7 +189,10 @@ def get_flights():
     if connection:
         try:
             cursor = connection.cursor()
-            cursor.execute(sql_query, (trip_type, ond, nb_connections_min, nb_connections_max))
+            cursor.execute(sql_query, (trip_type, 
+                                       ond, 
+                                       nb_connections_min, 
+                                       nb_connections_max))
             result = cursor.fetchall()
             columns = [desc[0] for desc in cursor.description]
             data = [dict(zip(columns, row)) for row in result]
@@ -214,6 +230,8 @@ def get_cities():
             connection.close()
     else:
         return jsonify({"error": "Connection to database failed"}), 500
+    
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
