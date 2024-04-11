@@ -1,11 +1,11 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 import psycopg2
 from psycopg2 import OperationalError
 from dotenv import load_dotenv
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
 CORS(app)
 
 def create_connection():
@@ -122,6 +122,10 @@ def get_cities():
             connection.close()
     else:
         return jsonify({"error": "Connection to database failed"}), 500
+    
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
