@@ -71,19 +71,8 @@ def postlogin():
     # Do anything after the user has logged in here, e.g. a redirect or perform
     # logic based on a custom `session['state']` value if that was set before
     # login
-    return redirect(url_for("claims"))
+    return redirect(url_for("dashboard"))
 
-
-@app.route("/claims")
-@auth_required()
-def claims():
-    # This route is protected by the Cognito authorisation. If the user is not
-    # logged in at this point or their token from Cognito is no longer valid
-    # a 401 Authentication Error is thrown, which can be caught by registering
-    # an `@app.error_handler(AuthorisationRequiredError)
-    # If their auth is valid, the current session will be shown including
-    # their claims and user_info extracted from the Cognito tokens.
-    return jsonify(session)
 
 
 @app.route('/api/ond-pairs')
@@ -110,11 +99,20 @@ def postlogout():
     # This is the endpoint Cognito redirects to after a user has logged out,
     # handle any logic here, like returning to the homepage.
     # This route must be set as one of the User Pool client's Sign Out URLs.
-    return redirect(url_for("home"))
+    # clear session
+    session.clear()
+    return redirect(url_for("index"))
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route("/dashboard")
+def dashboard():
+    # if there's no user logged in, redirect to the login page
+    if "user_info" not in session:
+        return redirect(url_for("login"))
+    return render_template("dashboard.html")
 
 def create_connection():
     load_dotenv()
