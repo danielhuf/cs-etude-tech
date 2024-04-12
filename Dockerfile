@@ -16,5 +16,4 @@ EXPOSE 5000
 # Define environment variable
 ENV NAME World
 
-# Run gunicorn when the container launches, assuming 'app.py' and a Flask app named 'app'
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "server:app"]
