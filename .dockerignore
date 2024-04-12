@@ -1,0 +1,7 @@
+.aws/
+.ebextensions/
+.git/
+.gitignore
+.elasticbeanstalk/
+.env
+__pycache__/

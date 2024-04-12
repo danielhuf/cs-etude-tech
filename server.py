@@ -157,7 +157,9 @@ def get_flights():
         sql.SQL("number_of_flights > {}").format(sql.Literal(nb_connections_min)),
         sql.SQL("number_of_flights <= {}").format(sql.Literal(nb_connections_max + 1)),
         sql.SQL("cabin = {}").format(sql.Literal(cabin)),
-        sql.SQL(passenger_type)
+        sql.SQL(passenger_type),
+        sql.SQL("search_time BETWEEN {} AND {}").format(sql.Literal(search_date_start), sql.Literal(search_date_end)),
+        sql.SQL("search_time + flight_recos.advance_purchase * INTERVAL '1 day' BETWEEN {} AND {}").format(sql.Literal(departure_date_start), sql.Literal(departure_date_end))
     ]
 
     query = sql.SQL("""
@@ -188,7 +190,7 @@ def get_flights():
     """).format(conditions=sql.SQL(' AND ').join(conditions))
 
     # Note: the end dates are exclusive
-    # For example, if time < 2021-01-01, it means time is less than 2021-01-01 00:00:00]
+    # For example, if time < 2021-01-01, it means time is less than 2021-01-01 00:00:00
 
     connection = create_connection()
     print(query.as_string(connection))
@@ -237,4 +239,4 @@ def get_cities():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
