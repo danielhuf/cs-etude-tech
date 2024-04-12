@@ -2,7 +2,7 @@ import os
 from flask import Flask, jsonify, request, redirect, render_template, url_for, session
 from flask_cors import CORS
 import psycopg2
-from psycopg2 import OperationalError
+from psycopg2 import OperationalError, sql
 from flask_dynamo import Dynamo
 
 from flask_cognito_lib import CognitoAuth
@@ -138,68 +138,64 @@ def create_connection():
 
 @app.route('/api/flights', methods=['GET'])
 def get_flights():
-    dic_cabin = {
-        'Economy': 'M',
-        'Premium economy': 'W',
-        'Business': 'C',
-        'First class': 'F'
-    }
-
     origin = request.args.get('origin', '')
     destination = request.args.get('destination', '')
     trip_type = request.args.get('trip_type', '')
     ond = f"{origin}-{destination}"
     nb_connections_min = request.args.get('nb_connections_min', type=int)
     nb_connections_max = request.args.get('nb_connections_max', type=int)
-    cabin = dic_cabin[request.args.get('cabin', '')]
+    cabin = request.args.get('cabin', '')
+    passenger_type = request.args.get('passenger_type', '')
     search_date_start = request.args.get('search_date_start', '')
     search_date_end = request.args.get('search_date_end', '')
     departure_date_start = request.args.get('departure_date_start', '')
     departure_date_end = request.args.get('departure_date_end', '')
-    is_one_adult = request.args.get('is_one_adult', '')
+
+    conditions = [
+        sql.SQL("trip_type = {}").format(sql.Literal(trip_type)),
+        sql.SQL("ond = {}").format(sql.Literal(ond)),
+        sql.SQL("number_of_flights > {}").format(sql.Literal(nb_connections_min)),
+        sql.SQL("number_of_flights <= {}").format(sql.Literal(nb_connections_max + 1)),
+        sql.SQL("cabin = {}").format(sql.Literal(cabin)),
+        sql.SQL(passenger_type)
+    ]
+
+    query = sql.SQL("""
+        SELECT
+            PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price_eur) AS median_price,
+            advance_purchase AS adv_purchase,
+            main_airline,
+            ond
+        FROM (
+            SELECT
+                MIN(price_eur) AS price_eur,
+                main_airline,
+                advance_purchase,
+                ond
+            FROM
+                flight_recos
+            WHERE
+                {conditions}
+            GROUP BY
+                search_id,
+                main_airline,
+                advance_purchase,
+                ond
+        ) AS t
+        GROUP BY
+            advance_purchase, ond, main_airline
+        ORDER BY advance_purchase DESC;
+    """).format(conditions=sql.SQL(' AND ').join(conditions))
 
     # Note: the end dates are exclusive
-    # For example, if time < 2021-01-01, it means time is less than 2021-01-01 00:00:00
+    # For example, if time < 2021-01-01, it means time is less than 2021-01-01 00:00:00]
 
-    sql_query = """
-                SELECT
-                    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price_eur) AS median_price,
-                    advance_purchase AS adv_purchase,
-                    main_airline,
-                    ond
-                FROM (
-                    SELECT
-                        MIN(price_eur) AS price_eur,
-                        main_airline,
-                        advance_purchase,
-                        ond
-                    FROM
-                        flight_recos
-                    WHERE
-                        trip_type = %s AND
-                        ond = %s AND
-                        number_of_flights > %s AND
-                        number_of_flights <= %s + 1 AND
-                        cabin = %s
-                    GROUP BY
-                        search_id,
-                        main_airline,
-                        advance_purchase,
-                        ond
-                ) AS t
-                GROUP BY
-                    advance_purchase, ond, main_airline
-                ORDER BY advance_purchase DESC;
-                """
     connection = create_connection()
+    print(query.as_string(connection))
     if connection:
         try:
             cursor = connection.cursor()
-            cursor.execute(sql_query, (trip_type, 
-                                       ond, 
-                                       nb_connections_min, 
-                                       nb_connections_max,
-                                       cabin))
+            cursor.execute(query)
             result = cursor.fetchall()
             columns = [desc[0] for desc in cursor.description]
             data = [dict(zip(columns, row)) for row in result]

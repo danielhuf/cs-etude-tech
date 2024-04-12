@@ -202,7 +202,7 @@ function fetchFlights() {
     const nbConnectionsMin = nbConnectionsSlider.dataset.min;
     const nbConnectionsMax = nbConnectionsSlider.dataset.max;
 
-    const isOneAdult = document.getElementById('is-one-adt').value;
+    const passengerType = document.getElementById('passenger-type').value;
     const cabin = document.getElementById('cabin').value;
 
     const url = new URL('http://localhost:5000/api/flights');
@@ -211,7 +211,7 @@ function fetchFlights() {
     url.searchParams.append('trip_type', tripType);
     url.searchParams.append('nb_connections_min', nbConnectionsMin);
     url.searchParams.append('nb_connections_max', nbConnectionsMax);
-    url.searchParams.append('is_one_adult', isOneAdult);
+    url.searchParams.append('passenger_type', passengerType);
     url.searchParams.append('cabin', cabin);
 
     if (searchDateRange.start && searchDateRange.end) {
