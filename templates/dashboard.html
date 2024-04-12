@@ -42,10 +42,11 @@
                 <label for="nb-connections">NB connections:</label>
                 <div id="nb-connections-slider"></div>
     
-                <label for="is-one-adt">Adult:</label>
-                <select id="is-one-adt">
-                    <option value="true">True</option>
-                    <option value="false">False</option>
+                <label for="passenger-type">Passenger type:</label>
+                <select id="passenger-type">
+                    <option value="passengers LIKE '%ADT%'">Adult</option>
+                    <option value="passengers LIKE '%IT%'">Inclusive Tour</option>
+                    <option value="passengers NOT LIKE '%ADT%' AND passengers NOT LIKE '%IT%'">Other</option>
                 </select>
             </div>
     
@@ -62,10 +63,10 @@
     
                 <label for="cabin">Cabin:</label>
                 <select id="cabin">
-                    <option value="Economy">Economy</option>
-                    <option value="Premium Economy">Premium economy</option>
-                    <option value="Business">Business</option>
-                    <option value="First class">First class</option>
+                    <option value="M">Economy</option>
+                    <option value="W">Premium economy</option>
+                    <option value="C">Business</option>
+                    <option value="F">First class</option>
                 </select>
             </div>
 
