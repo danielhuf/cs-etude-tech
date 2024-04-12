@@ -4,7 +4,7 @@ let departureDateRange;
 var OnDPairs = [];
 
 document.addEventListener('DOMContentLoaded', function() {
-    setupCheckbox();
+    setupDuration();
     setupSlider([0, 5], 0, 5);
     setupDatePickers();
     setupEventListeners();
@@ -22,31 +22,28 @@ document.getElementById('destination-city').addEventListener('change', function(
     updateOriginsFromDestination(this.value);
 });
 
-function setupCheckbox() {
-    var allCheckbox = document.querySelector('.all');
-    var checkboxes = document.querySelectorAll('.stay-duration:not(.all)');
+function setupDuration() {
+    const minStayInput = document.getElementById('min-stay');
+    const maxStayInput = document.getElementById('max-stay');
 
-    allCheckbox.addEventListener('change', function() {
-        for (var i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].checked = this.checked;  
+    minStayInput.addEventListener('input', function() {
+        maxStayInput.min = minStayInput.value; 
+        if (parseInt(maxStayInput.value) < parseInt(minStayInput.value)) {
+            maxStayInput.value = minStayInput.value; 
+        }
+        if (parseInt(minStayInput.value) < -1) {
+            minStayInput.value = -1;
         }
     });
 
-    checkboxes.forEach(function(checkbox) {
-        checkbox.addEventListener('change', function() {
-            if (!this.checked) {
-                allCheckbox.checked = false;
-            } else {
-                var allChecked = true;
-                for (var i = 0; i < checkboxes.length; i++) {
-                    if (!checkboxes[i].checked) {
-                        allChecked = false;
-                        break;
-                    }
-                }
-                allCheckbox.checked = allChecked;
-            }
-        });
+    maxStayInput.addEventListener('input', function() {
+        minStayInput.max = maxStayInput.value; 
+        if (parseInt(minStayInput.value) > parseInt(maxStayInput.value)) {
+            minStayInput.value = maxStayInput.value;
+        }
+        if (parseInt(maxStayInput.value) < -1) {
+            maxStayInput.value = -1;
+        }
     });
 }
 
@@ -115,6 +112,28 @@ function setupEventListeners() {
     document.getElementById('search-flights').addEventListener('click', function() {
         fetchFlights();
     });
+
+    document.getElementById('trip-type').addEventListener('change', adjustStayDurationBasedOnTripType);
+}
+
+function adjustStayDurationBasedOnTripType() {
+    const tripType = document.getElementById('trip-type').value;
+    const minStayInput = document.getElementById('min-stay');
+    const maxStayInput = document.getElementById('max-stay');
+
+    if (tripType === 'OW') {
+        minStayInput.value = -1;
+        maxStayInput.value = -1;
+
+        minStayInput.disabled = true;
+        maxStayInput.disabled = true;
+    } else {
+        minStayInput.disabled = false;
+        maxStayInput.disabled = false;
+
+        minStayInput.value = 0; 
+        maxStayInput.value = 7; 
+    }
 }
 
 function getOriginsFromOnDPairs(OnDPairs) {
@@ -195,8 +214,7 @@ function fetchFlights() {
 
     const originCity = document.getElementById('origin-city').value;
     const destinationCity = document.getElementById('destination-city').value;
-    let tripType = document.getElementById('trip-type').value;
-    tripType = tripType === 'One way' ? 'OW' : 'RT';
+    const tripType = document.getElementById('trip-type').value;
 
     const nbConnectionsSlider = document.getElementById('nb-connections-slider');
     const nbConnectionsMin = nbConnectionsSlider.dataset.min;
@@ -204,6 +222,9 @@ function fetchFlights() {
 
     const passengerType = document.getElementById('passenger-type').value;
     const cabin = document.getElementById('cabin').value;
+
+    const minStayInput = document.getElementById('min-stay').value;
+    const maxStayInput = document.getElementById('max-stay').value;
 
     const url = new URL('http://localhost:5000/api/flights');
     url.searchParams.append('origin', originCity);
@@ -213,6 +234,8 @@ function fetchFlights() {
     url.searchParams.append('nb_connections_max', nbConnectionsMax);
     url.searchParams.append('passenger_type', passengerType);
     url.searchParams.append('cabin', cabin);
+    url.searchParams.append('min_stay_input', minStayInput);
+    url.searchParams.append('max_stay_input', maxStayInput);
 
     if (searchDateRange.start && searchDateRange.end) {
         url.searchParams.append('search_date_start', formatDateToISO(searchDateRange.start));
