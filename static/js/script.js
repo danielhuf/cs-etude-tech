@@ -82,17 +82,17 @@ function setupSlider(startValues, min, max) {
 }
 
 function setupDatePickers() {
-    const twoYearsAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 2));
+    const threeYearsAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 3));
     const today = new Date();
 
-    searchDateRange = { start: twoYearsAgo, end: today };
-    departureDateRange = { start: twoYearsAgo, end: today };
+    searchDateRange = { start: threeYearsAgo, end: today };
+    departureDateRange = { start: threeYearsAgo, end: today };
 
     searchDateRange.fpInstance = flatpickr("#search-date", {
         mode: "range",
         dateFormat: "Y-m-d",
         maxDate: today,
-        defaultDate: [twoYearsAgo, today],
+        defaultDate: [threeYearsAgo, today],
         onChange: function(selectedDates, dateStr, instance) {
             searchDateRange.start = selectedDates[0];
             searchDateRange.end = selectedDates[1];
@@ -103,7 +103,7 @@ function setupDatePickers() {
         mode: "range",
         dateFormat: "Y-m-d",
         maxDate: today,
-        defaultDate: [twoYearsAgo, today],
+        defaultDate: [threeYearsAgo, today],
         onChange: function(selectedDates, dateStr, instance) {
             departureDateRange.start = selectedDates[0];
             departureDateRange.end = selectedDates[1];
@@ -218,9 +218,9 @@ function fetchFlights() {
         url.searchParams.append('search_date_start', formatDateToISO(searchDateRange.start));
         url.searchParams.append('search_date_end', formatDateToISO(searchDateRange.end));
     } else {
-        const twoYearsAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 2));
+        const threeYearsAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 3));
         const today = new Date();
-        url.searchParams.append('search_date_start', twoYearsAgo.toISOString().split('T')[0]);
+        url.searchParams.append('search_date_start', threeYearsAgo.toISOString().split('T')[0]);
         url.searchParams.append('search_date_end', today.toISOString().split('T')[0]);
     }
 
@@ -228,9 +228,9 @@ function fetchFlights() {
         url.searchParams.append('departure_date_start', formatDateToISO(departureDateRange.start));
         url.searchParams.append('departure_date_end', formatDateToISO(departureDateRange.end));
     } else {
-        const twoYearsAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 2));
+        const threeYearsAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 3));
         const today = new Date();
-        url.searchParams.append('departure_date_start', twoYearsAgo.toISOString().split('T')[0]);
+        url.searchParams.append('departure_date_start', threeYearsAgo.toISOString().split('T')[0]);
         url.searchParams.append('departure_date_end', today.toISOString().split('T')[0]);
     }
 
