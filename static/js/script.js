@@ -167,7 +167,7 @@ function updateDestinationsFromOrigin(origin) {
     origin = origin.trim().toUpperCase();
 
     if (origin === '') {
-        populateDatalist('destination-options', getOriginsFromOnDPairs(OnDPairs));
+        populateDatalist('destination-options', getDestinationFromOnDPairs(OnDPairs));
     } else {
         // Filter destinations whose first characters match the input
         const destinations = OnDPairs.filter(pair => pair[0].toUpperCase() === origin)
@@ -181,7 +181,7 @@ function updateOriginsFromDestination(destination) {
     destination = destination.trim().toUpperCase();
 
     if (destination === '') {
-        populateDatalist('origin-options', getDestinationsFromOnDPairs(OnDPairs));
+        populateDatalist('origin-options', getOriginsFromOnDPairs(OnDPairs));
     } else {
         // Filter origins whose first characters match the input
         const origins = OnDPairs.filter(pair => pair[1].toUpperCase() === destination)
