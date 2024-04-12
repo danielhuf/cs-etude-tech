@@ -127,7 +127,9 @@ function getDestinationsFromOnDPairs(OnDPairs) {
 
 async function fetchOnDPairs() {
     try {
-        const response = await fetch('http://localhost:5000/api/ond-pairs');
+        const currentUrl = window.location.href;
+        const modifiedUrl = currentUrl.replace('/dashboard', '/api/ond-pairs');
+        const response = await fetch(modifiedUrl);
         const data = await response.json();
         OnDPairs = data['OnDPairs'];
         populateDatalist('origin-options', getOriginsFromOnDPairs(OnDPairs));
@@ -205,7 +207,10 @@ function fetchFlights() {
     const passengerType = document.getElementById('passenger-type').value;
     const cabin = document.getElementById('cabin').value;
 
-    const url = new URL('http://localhost:5000/api/flights');
+    const currentUrl = window.location.href;
+    const modifiedUrl = currentUrl.replace('/dashboard', '/api/flights');
+
+    const url = new URL(modifiedUrl);
     url.searchParams.append('origin', originCity);
     url.searchParams.append('destination', destinationCity);
     url.searchParams.append('trip_type', tripType);
