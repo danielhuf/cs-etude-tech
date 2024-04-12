@@ -138,6 +138,7 @@ def create_connection():
 
 @app.route('/api/flights', methods=['GET'])
 def get_flights():
+    filters = request.args.get('filters').lower() == 'true'
     origin = request.args.get('origin', '')
     destination = request.args.get('destination', '')
     trip_type = request.args.get('trip_type', '')
@@ -150,17 +151,29 @@ def get_flights():
     search_date_end = request.args.get('search_date_end', '')
     departure_date_start = request.args.get('departure_date_start', '')
     departure_date_end = request.args.get('departure_date_end', '')
+    min_stay_duration = request.args.get('min_stay_input', '', type=int)
+    max_stay_duration = request.args.get('max_stay_input', '', type=int)
+
+    if min_stay_duration == '' or max_stay_duration == '':
+        min_stay_duration = -1
+        max_stay_duration = -1
 
     conditions = [
-        sql.SQL("trip_type = {}").format(sql.Literal(trip_type)),
-        sql.SQL("ond = {}").format(sql.Literal(ond)),
-        sql.SQL("number_of_flights > {}").format(sql.Literal(nb_connections_min)),
-        sql.SQL("number_of_flights <= {}").format(sql.Literal(nb_connections_max + 1)),
-        sql.SQL("cabin = {}").format(sql.Literal(cabin)),
-        sql.SQL(passenger_type),
-        sql.SQL("search_time BETWEEN {} AND {}").format(sql.Literal(search_date_start), sql.Literal(search_date_end)),
-        sql.SQL("search_time + flight_recos.advance_purchase * INTERVAL '1 day' BETWEEN {} AND {}").format(sql.Literal(departure_date_start), sql.Literal(departure_date_end))
+        sql.SQL("ond = {}").format(sql.Literal(ond))
     ]
+
+    if filters:
+        conditions += [
+            sql.SQL("trip_type = {}").format(sql.Literal(trip_type)),
+            sql.SQL("number_of_flights > {}").format(sql.Literal(nb_connections_min)),
+            sql.SQL("number_of_flights <= {}").format(sql.Literal(nb_connections_max + 1)),
+            sql.SQL("cabin = {}").format(sql.Literal(cabin)),
+            sql.SQL(passenger_type),
+            sql.SQL("search_time BETWEEN {} AND {}").format(sql.Literal(search_date_start), sql.Literal(search_date_end)),
+            sql.SQL("search_time + flight_recos.advance_purchase * INTERVAL '1 day' BETWEEN {} AND {}").format(sql.Literal(departure_date_start), sql.Literal(departure_date_end)),
+            sql.SQL("stay_duration >= {}").format(sql.Literal(min_stay_duration)),
+            sql.SQL("stay_duration <= {}").format(sql.Literal(max_stay_duration))
+        ]
 
     query = sql.SQL("""
         SELECT
