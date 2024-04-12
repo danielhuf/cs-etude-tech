@@ -12,7 +12,15 @@ document.addEventListener('DOMContentLoaded', function() {
         setupDefaults();
         fetchFlights(); 
     });
+    fetchUsername().then(username => {
+        console.log('username:', username);
+        setUsername(username);
+    });
 });
+
+function setUsername(username){
+    document.getElementById('username').innerText = username;
+}
 
 document.getElementById('origin-city').addEventListener('change', function() {
     updateDestinationsFromOrigin(this.value);
@@ -191,17 +199,22 @@ function updateOriginsFromDestination(destination) {
 }
 
 
-
-// async function fetchCities() {
-//     try {
-//         const response = await fetch('http://localhost:5000/api/cities');
-//         const data = await response.json();
-//         populateDatalist('origin-options', data.origins);
-//         populateDatalist('destination-options', data.destinations);
-//     } catch (error) {
-//         console.error('Error fetching city data:', error);
-//     }
-// }
+async function fetchUsername(){
+    console.log('fetching username');
+    return fetch('http://localhost:5000/api/username')
+        .then(response => response.json())
+        .then(data => {
+            console.log('username:', data);
+            if (data) {
+                return data.toUpperCase();
+            } else {
+                return 'User';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching username:', error);
+        });
+}
 
 function populateDatalist(datalistId, options) {
     const datalist = document.getElementById(datalistId);
