@@ -85,6 +85,11 @@ def get_ond_pairs():
     items = response.get('Item', {})
     return jsonify(items)
 
+@app.route('/api/username')
+@auth_required()
+def get_username():
+    return jsonify(session['user_info']['cognito:username'])
+
 @app.route("/logout")
 @cognito_logout
 def logout():
