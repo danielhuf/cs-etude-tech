@@ -228,9 +228,6 @@ function fetchFlights() {
     const minStayInput = document.getElementById('min-stay').value;
     const maxStayInput = document.getElementById('max-stay').value;
 
-    const minStayInput = document.getElementById('min-stay').value;
-    const maxStayInput = document.getElementById('max-stay').value;
-
     const currentUrl = window.location.href;
     const modifiedUrl = currentUrl.replace('/dashboard', '/api/flights');
 
