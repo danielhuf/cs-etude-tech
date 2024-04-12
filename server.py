@@ -138,6 +138,7 @@ def create_connection():
 
 @app.route('/api/flights', methods=['GET'])
 def get_flights():
+    filters = request.args.get('filters').lower() == 'true'
     origin = request.args.get('origin', '')
     destination = request.args.get('destination', '')
     trip_type = request.args.get('trip_type', '')
@@ -158,17 +159,21 @@ def get_flights():
         max_stay_duration = -1
 
     conditions = [
-        sql.SQL("trip_type = {}").format(sql.Literal(trip_type)),
-        sql.SQL("ond = {}").format(sql.Literal(ond)),
-        sql.SQL("number_of_flights > {}").format(sql.Literal(nb_connections_min)),
-        sql.SQL("number_of_flights <= {}").format(sql.Literal(nb_connections_max + 1)),
-        sql.SQL("cabin = {}").format(sql.Literal(cabin)),
-        sql.SQL(passenger_type),
-        sql.SQL("search_time BETWEEN {} AND {}").format(sql.Literal(search_date_start), sql.Literal(search_date_end)),
-        sql.SQL("search_time + flight_recos.advance_purchase * INTERVAL '1 day' BETWEEN {} AND {}").format(sql.Literal(departure_date_start), sql.Literal(departure_date_end)),
-        sql.SQL("stay_duration >= {}").format(sql.Literal(min_stay_duration)),
-        sql.SQL("stay_duration <= {}").format(sql.Literal(max_stay_duration))
+        sql.SQL("ond = {}").format(sql.Literal(ond))
     ]
+
+    if filters:
+        conditions += [
+            sql.SQL("trip_type = {}").format(sql.Literal(trip_type)),
+            sql.SQL("number_of_flights > {}").format(sql.Literal(nb_connections_min)),
+            sql.SQL("number_of_flights <= {}").format(sql.Literal(nb_connections_max + 1)),
+            sql.SQL("cabin = {}").format(sql.Literal(cabin)),
+            sql.SQL(passenger_type),
+            sql.SQL("search_time BETWEEN {} AND {}").format(sql.Literal(search_date_start), sql.Literal(search_date_end)),
+            sql.SQL("search_time + flight_recos.advance_purchase * INTERVAL '1 day' BETWEEN {} AND {}").format(sql.Literal(departure_date_start), sql.Literal(departure_date_end)),
+            sql.SQL("stay_duration >= {}").format(sql.Literal(min_stay_duration)),
+            sql.SQL("stay_duration <= {}").format(sql.Literal(max_stay_duration))
+        ]
 
     query = sql.SQL("""
         SELECT

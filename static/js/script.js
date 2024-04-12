@@ -109,8 +109,12 @@ function setupDatePickers() {
 }
 
 function setupEventListeners() {
-    document.getElementById('search-flights').addEventListener('click', function() {
+    document.getElementById('search-flights-filter').addEventListener('click', function() {
         fetchFlights();
+    });
+
+    document.getElementById('search-flights-nofilter').addEventListener('click', function() {
+        fetchFlights(false);
     });
 
     document.getElementById('trip-type').addEventListener('change', adjustStayDurationBasedOnTripType);
@@ -211,7 +215,7 @@ function setupDefaults() {
     }
 }
 
-function fetchFlights() {
+function fetchFlights(filters=true) {
     document.getElementById('loading').style.display = 'block';
 
     const originCity = document.getElementById('origin-city').value;
@@ -232,6 +236,7 @@ function fetchFlights() {
     const modifiedUrl = currentUrl.replace('/dashboard', '/api/flights');
 
     const url = new URL(modifiedUrl);
+    url.searchParams.append('filters', filters);
     url.searchParams.append('origin', originCity);
     url.searchParams.append('destination', destinationCity);
     url.searchParams.append('trip_type', tripType);
