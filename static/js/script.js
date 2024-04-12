@@ -200,8 +200,9 @@ function updateOriginsFromDestination(destination) {
 
 
 async function fetchUsername(){
-    console.log('fetching username');
-    return fetch('http://localhost:5000/api/username')
+    const currentUrl = window.location.href;
+    const modifiedUrl = currentUrl.replace('/dashboard', '/api/username');
+    return fetch(modifiedUrl)
         .then(response => response.json())
         .then(data => {
             console.log('username:', data);
