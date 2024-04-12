@@ -154,7 +154,7 @@ async function fetchOnDPairs() {
         const modifiedUrl = currentUrl.replace('/dashboard', '/api/ond-pairs');
         const response = await fetch(modifiedUrl);
         const data = await response.json();
-        OnDPairs = data['OnDPairs'];
+        OnDPairs = data['OnDPairs'][0];
         populateDatalist('origin-options', getOriginsFromOnDPairs(OnDPairs));
         populateDatalist('destination-options', getDestinationsFromOnDPairs(OnDPairs));
     } catch (error) {
@@ -163,22 +163,31 @@ async function fetchOnDPairs() {
 }
 
 function updateDestinationsFromOrigin(origin) {
+    // Trim spaces and convert to lowercase for case-insensitive comparison
+    origin = origin.trim().toUpperCase();
+
     if (origin === '') {
         populateDatalist('destination-options', getOriginsFromOnDPairs(OnDPairs));
     } else {
-        const destinations = OnDPairs.filter(pair => pair[0] === origin).map(pair => pair[1]);
+        // Filter destinations whose first characters match the input
+        const destinations = OnDPairs.filter(pair => pair[0].toUpperCase() === origin)
+                                     .map(pair => pair[1]);
         populateDatalist('destination-options', destinations);
     }
 }
 
 function updateOriginsFromDestination(destination) {
+    // Trim spaces and convert to lowercase for case-insensitive comparison
+    destination = destination.trim().toUpperCase();
+
     if (destination === '') {
         populateDatalist('origin-options', getDestinationsFromOnDPairs(OnDPairs));
     } else {
-        const origins = OnDPairs.filter(pair => pair[1] === destination).map(pair => pair[0]);
+        // Filter origins whose first characters match the input
+        const origins = OnDPairs.filter(pair => pair[1].toUpperCase() === destination)
+                                    .map(pair => pair[0]);
         populateDatalist('origin-options', origins);
     }
-    
 }
 
 
